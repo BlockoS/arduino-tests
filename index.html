@@ -54,43 +54,43 @@
 
 <p>An example project for <a href="http://dalpix.com/mariamole">MariaMole</a> is provided <a href="http://github.com/BlockoS/arduino-tests/tree/master/workspace/Arduino%20tests">here</a></p>
 
-<pre><code>#include &lt;arduino.h&gt;
-#include "Dummy.h"
-#include "SerialNotifier.h"
+<div class="highlight"><pre><span class="cp">#include &lt;arduino.h&gt;</span>
+<span class="cp">#include "Dummy.h"</span>
+<span class="cp">#include "SerialNotifier.h"</span>
 
-// You must declare this in order to satisfy the grumpy avr-gcc C++ compiler.
-extern "C" void   atexit( void ) { } 
+<span class="c1">// You must declare this in order to satisfy the grumpy avr-gcc C++ compiler.</span>
+<span class="k">extern</span> <span class="s">"C"</span> <span class="kt">void</span>   <span class="n">atexit</span><span class="p">(</span> <span class="kt">void</span> <span class="p">)</span> <span class="p">{</span> <span class="p">}</span> 
 
-SUITE(TestSuite)
-{
-    TEST(FirstTest)
-    {
-        int a = 1;
-        CHECK(1, a);
-        CHECK("bar", "foo");
-    }
+<span class="n">SUITE</span><span class="p">(</span><span class="n">TestSuite</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">TEST</span><span class="p">(</span><span class="n">FirstTest</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="s">"bar"</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">);</span>
+    <span class="p">}</span>
 
-    TEST(SecondTest)
-    {
-        CHECK(0, 1);
-        CHECK(5, 2);
-    }
-}
+    <span class="n">TEST</span><span class="p">(</span><span class="n">SecondTest</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-void setup()
-{
-    Serial.begin(9600);
+<span class="kt">void</span> <span class="n">setup</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">9600</span><span class="p">);</span>
 
-    Dummy::SerialNotifier notifier;
-    Dummy::Result res;
+    <span class="n">Dummy</span><span class="o">::</span><span class="n">SerialNotifier</span> <span class="n">notifier</span><span class="p">;</span>
+    <span class="n">Dummy</span><span class="o">::</span><span class="n">Result</span> <span class="n">res</span><span class="p">;</span>
 
-    res = Dummy::Runner::Instance().Run(&amp;notifier); 
-}
+    <span class="n">res</span> <span class="o">=</span> <span class="n">Dummy</span><span class="o">::</span><span class="n">Runner</span><span class="o">::</span><span class="n">Instance</span><span class="p">().</span><span class="n">Run</span><span class="p">(</span><span class="o">&amp;</span><span class="n">notifier</span><span class="p">);</span> 
+<span class="p">}</span>
 
-void loop()
-{
-}
-</code></pre>
+<span class="kt">void</span> <span class="n">loop</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
 
 <p>Once the program is uploaded on the board, you may read the following on your serial terminal. As you may have noticed only 1 of the 4 test is successful.</p>
 
@@ -99,6 +99,47 @@ void loop()
 ...o tests\source\SerialTest.cpp:22 TestSuite:SecondTest expected=5 value=2
 Test run: 2, failed: 2, errors: 3
 </code></pre>
+
+<p>You can also add fixtures by declaring a class with 2 methods <strong>Setup</strong> and <strong>Teardown</strong>. These methods will be called respectively before and after the test. Use <strong>TEST_FIXTURE</strong> to declare a test with a fixture.</p>
+
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">SampleFixture</span>
+<span class="p">{</span>
+    <span class="k">public</span><span class="o">:</span>
+        <span class="kt">void</span> <span class="n">Setup</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">m_device</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+            <span class="n">m_device</span><span class="p">.</span><span class="n">Setup</span><span class="p">();</span>
+            <span class="n">m_device</span><span class="p">.</span><span class="n">WaitUntiReady</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="kt">void</span> <span class="n">TearDown</span><span class="p">()</span>
+        <span class="p">{</span>
+            <span class="n">m_device</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="k">protected</span><span class="o">:</span>
+        <span class="n">ACMEDevice</span> <span class="n">m_device</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">SUITE</span><span class="p">(</span><span class="n">SampleSuite</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">TEST_FIXTURE</span><span class="p">(</span><span class="n">TaccoTest</span><span class="p">,</span> <span class="n">SampleFixture</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">uint8_t</span> <span class="n">data</span><span class="p">;</span>
+        <span class="n">uint8_t</span> <span class="n">status</span><span class="p">;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">m_device</span><span class="p">.</span><span class="n">GetParameter</span><span class="p">(</span><span class="n">ACMEDevice</span><span class="o">::</span><span class="n">Tacco</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="n">ACMEDevice</span><span class="o">::</span><span class="n">CorrectTacco</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">TEST_FIXTURE</span><span class="p">(</span><span class="n">PizzaTest</span><span class="p">,</span> <span class="n">SampleFixture</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">char</span> <span class="n">pizzaName</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+        <span class="n">uint8_t</span> <span class="n">status</span><span class="p">;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">m_device</span><span class="p">.</span><span class="n">SetParameter</span><span class="p">(</span><span class="n">ACMEDevice</span><span class="o">::</span><span class="n">Pizza</span><span class="p">,</span> <span class="s">"Calzone"</span><span class="p">);</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="n">ACMEDevice</span><span class="o">::</span><span class="n">OK</span><span class="p">,</span> <span class="n">status</span><span class="p">);</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="n">m_device</span><span class="p">.</span><span class="n">GetParameter</span><span class="p">(</span><span class="n">ACMEDevice</span><span class="o">::</span><span class="n">Pizza</span><span class="p">,</span> <span class="n">pizzaName</span><span class="p">);</span>
+        <span class="n">CHECK</span><span class="p">(</span><span class="s">"Calzone"</span><span class="p">,</span> <span class="n">pizzaName</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
 
 <h3>Documentation</h3>
 
